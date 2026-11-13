@@ -1,0 +1,32 @@
+# Portal em app.abianchitech.com/saas/admin: /api e /up vão para o Laravel; o resto é o painel Angular.
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+    RewriteBase /saas/admin/
+
+    # Token de acesso (a HostGator não repassa o cabeçalho Authorization ao PHP sem isto)
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    RewriteRule ^(api|up)(/.*)?$ index.php [L]
+
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    RewriteRule ^ index.html [L]
+</IfModule>
+
+# Cache: o index.html é sempre conferido com o servidor (senão o navegador abre a versão antiga
+# depois de uma atualização). Os .js e .css têm o código da versão no nome e podem ficar guardados por 1 ano.
+<IfModule mod_headers.c>
+    <FilesMatch "\.html$">
+        Header set Cache-Control "no-cache, must-revalidate"
+    </FilesMatch>
+    <FilesMatch "\.(js|css)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+</IfModule>
