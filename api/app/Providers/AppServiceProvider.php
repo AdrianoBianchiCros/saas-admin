@@ -31,5 +31,11 @@ class AppServiceProvider extends ServiceProvider
                 'message' => 'Muitas tentativas de login. Aguarde um minuto e tente novamente.',
             ], 429));
         });
+
+        // Código do app autenticador: além das 5 tentativas por login, um teto por IP.
+        RateLimiter::for('codigo', fn (Request $request) => Limit::perMinute(10)->by($request->ip())
+            ->response(fn () => response()->json([
+                'message' => 'Muitas tentativas de código. Aguarde um minuto e tente novamente.',
+            ], 429)));
     }
 }

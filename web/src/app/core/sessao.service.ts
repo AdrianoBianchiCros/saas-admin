@@ -8,7 +8,11 @@ export interface Administrador {
   id: number;
   nome: string;
   email: string;
+  /** Verificação em duas etapas (app autenticador) ligada. */
+  duas_etapas: boolean;
 }
+
+type RespostaLogin = { token: string; admin: Administrador } | { precisa_codigo: true; desafio: string };
 
 /** Produto (SaaS) configurado no portal. A chave é também o caminho das telas dele (ex.: /barbearia). */
 export interface Produto {
@@ -41,18 +45,48 @@ export class SessaoService {
     }
   }
 
-  login(email: string, password: string): Observable<Administrador> {
-    return this.http.post<{ token: string; admin: Administrador }>(`${API}/auth/login`, { email, password }).pipe(
-      map((r) => {
-        try {
-          localStorage.setItem(CHAVE_TOKEN, r.token);
-        } catch {
-          // sem armazenamento: a sessão dura até recarregar a página
-        }
-        this._admin.set(r.admin);
-        return r.admin;
-      }),
+  /**
+   * Primeira etapa (e-mail e senha). Com a verificação em duas etapas ligada, devolve o desafio
+   * para enviar junto com o código do app em entrarComCodigo(); senão, já entra.
+   */
+  login(email: string, password: string): Observable<{ admin: Administrador } | { desafio: string }> {
+    return this.http.post<RespostaLogin>(`${API}/auth/login`, { email, password }).pipe(
+      map((r) => ('desafio' in r ? { desafio: r.desafio } : { admin: this.guardar(r) })),
     );
+  }
+
+  /** Segunda etapa: código de 6 dígitos do app autenticador. */
+  entrarComCodigo(desafio: string, codigo: string): Observable<Administrador> {
+    return this.http
+      .post<{ token: string; admin: Administrador }>(`${API}/auth/codigo`, { desafio, codigo })
+      .pipe(map((r) => this.guardar(r)));
+  }
+
+  /** Gera a chave nova e o endereço que vai no QR code. */
+  iniciarDuasEtapas(): Observable<{ chave: string; uri: string }> {
+    return this.http.post<{ chave: string; uri: string }>(`${API}/auth/duas-etapas/iniciar`, {});
+  }
+
+  ativarDuasEtapas(codigo: string): Observable<unknown> {
+    return this.http.post(`${API}/auth/duas-etapas/ativar`, { codigo }).pipe(tap(() => this.marcarDuasEtapas(true)));
+  }
+
+  desativarDuasEtapas(senha: string): Observable<unknown> {
+    return this.http.post(`${API}/auth/duas-etapas/desativar`, { senha }).pipe(tap(() => this.marcarDuasEtapas(false)));
+  }
+
+  private marcarDuasEtapas(ligada: boolean): void {
+    this._admin.update((a) => (a ? { ...a, duas_etapas: ligada } : a));
+  }
+
+  private guardar(r: { token: string; admin: Administrador }): Administrador {
+    try {
+      localStorage.setItem(CHAVE_TOKEN, r.token);
+    } catch {
+      // sem armazenamento: a sessão dura até recarregar a página
+    }
+    this._admin.set(r.admin);
+    return r.admin;
   }
 
   carregarSessao(): Observable<boolean> {

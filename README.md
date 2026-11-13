@@ -22,6 +22,16 @@ Um login só; no menu aparece cada produto (Barbearia, e depois Clínica etc.) c
   (repositório `AdrianoBianchiCros/saas-admin`). A primeira publicação revelou que o workflow da Barbearia supunha o
   sistema já instalado; aqui ele cria `bootstrap/cache` e `storage` e tolera o `artisan` ausente na primeira vez.
 
+- **13/11/2026 — verificação em duas etapas** (mesmo funcionamento do MiniCRM). Em "Minha conta" (link no topo),
+  o administrador ativa lendo o QR code no Google Authenticator, Microsoft Authenticator ou Authy e confirmando um
+  código. Depois disso o login pede senha e o código de 6 dígitos (5 minutos e 5 tentativas por login; o mesmo
+  código não entra duas vezes). Desativar pede a senha. A chave fica criptografada no banco com o `APP_KEY`
+  (trocar o `APP_KEY` invalida as chaves: aí cada um desliga e ativa de novo). QR code gerado no próprio portal,
+  sem biblioteca externa, conferido com um leitor de QR. Testes: 18 da API e 5 do painel.
+- **Celular perdido:** no Terminal do cPanel,
+  `cd /home4/adri0667/saas/admin && /opt/cpanel/ea-php83/root/usr/bin/php artisan admin:desligar-duas-etapas SEU@EMAIL`;
+  entra só com e-mail e senha e ativa de novo.
+
 ## O que falta
 
 - ⬜ Criar o seu administrador no servidor (`admin:criar`, passo 6 abaixo) e testar a Barbearia pelo portal no navegador.

@@ -19,6 +19,11 @@ export const routes: Routes = [
         title: 'Início | Administração',
         loadComponent: () => import('./paginas/inicio').then((m) => m.Inicio),
       },
+      {
+        path: 'conta',
+        title: 'Minha conta | Administração',
+        loadComponent: () => import('./paginas/minha-conta').then((m) => m.MinhaConta),
+      },
       // Barbearia: barbearias clientes, contrato e prazo de acesso.
       {
         path: 'barbearia',

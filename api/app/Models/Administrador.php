@@ -12,18 +12,26 @@ use Laravel\Sanctum\HasApiTokens;
  * de todos os produtos (Barbearia, Clínica...). Criado pelo comando "php artisan admin:criar".
  */
 #[Fillable(['nome', 'email', 'password', 'ativo'])]
-#[Hidden(['password'])]
+#[Hidden(['password', 'totp_chave', 'totp_chave_nova'])]
 class Administrador extends Authenticatable
 {
     use HasApiTokens;
 
     protected $table = 'administradores';
 
+    public function usaDuasEtapas(): bool
+    {
+        return filled($this->totp_chave);
+    }
+
     protected function casts(): array
     {
         return [
             'password' => 'hashed',
             'ativo' => 'boolean',
+            'totp_chave' => 'encrypted',
+            'totp_chave_nova' => 'encrypted',
+            'totp_passo' => 'integer',
         ];
     }
 }

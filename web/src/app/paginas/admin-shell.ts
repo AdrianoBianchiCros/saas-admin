@@ -22,6 +22,7 @@ import { SessaoService } from '../core/sessao.service';
       </nav>
       <div class="topo-admin-usuario">
         <small>{{ sessao.admin()?.nome }}</small>
+        <a class="botao-link" routerLink="/conta" routerLinkActive="ativo">Minha conta</a>
         <button class="botao botao-secundario botao-auto" type="button" (click)="sessao.logout()">Sair</button>
       </div>
     </header>
