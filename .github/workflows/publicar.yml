@@ -179,7 +179,10 @@ jobs:
 
       - name: Migrations e cache
         run: |
+          # storage/ e bootstrap/cache/ não são enviados (ficam com os dados do servidor); na primeira vez são criados aqui.
           ssh hostgator "cd $DIR_SISTEMA && \
+            mkdir -p bootstrap/cache storage/logs storage/app/public storage/framework/cache/data \
+              storage/framework/sessions storage/framework/views && \
             $PHP_REMOTO artisan config:clear && \
             $PHP_REMOTO artisan package:discover --ansi && \
             $PHP_REMOTO artisan migrate --force && \
