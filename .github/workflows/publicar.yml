@@ -151,9 +151,13 @@ jobs:
           echo "Conexão com a HostGator ok."
 
       - name: Modo manutenção
+        # storage/ e bootstrap/cache/ não são enviados (ficam com os dados do servidor); na primeira vez são criados aqui.
         # Na primeira publicação o código ainda não está no servidor (só o .env): não há o que pôr em manutenção.
         run: |
-          ssh hostgator "cd $DIR_SISTEMA && if [ -f artisan ]; then $PHP_REMOTO artisan down --retry=30; else echo 'Primeira publicação, sem artisan ainda.'; fi"
+          ssh hostgator "cd $DIR_SISTEMA && \
+            mkdir -p bootstrap/cache storage/logs storage/app/public storage/framework/cache/data \
+              storage/framework/sessions storage/framework/views && \
+            if [ -f artisan ]; then $PHP_REMOTO artisan down --retry=30; else echo 'Primeira publicação, sem artisan ainda.'; fi"
 
       - name: Enviar o sistema (Laravel)
         # --delete remove do servidor o que saiu do código; o que está em --exclude nunca é tocado.
@@ -179,10 +183,7 @@ jobs:
 
       - name: Migrations e cache
         run: |
-          # storage/ e bootstrap/cache/ não são enviados (ficam com os dados do servidor); na primeira vez são criados aqui.
           ssh hostgator "cd $DIR_SISTEMA && \
-            mkdir -p bootstrap/cache storage/logs storage/app/public storage/framework/cache/data \
-              storage/framework/sessions storage/framework/views && \
             $PHP_REMOTO artisan config:clear && \
             $PHP_REMOTO artisan package:discover --ansi && \
             $PHP_REMOTO artisan migrate --force && \
