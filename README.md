@@ -18,9 +18,14 @@ Um login só; no menu aparece cada produto (Barbearia, e depois Clínica etc.) c
 - Testado de ponta a ponta no PC, com a Barbearia local: cadastro com contrato anexado, senha provisória do dono,
   download do contrato e erros de validação vindos da Barbearia.
 
+- **13/11/2026 — no ar** em `https://app.abianchitech.com/saas/admin`, publicado pelo GitHub Actions
+  (repositório `AdrianoBianchiCros/saas-admin`). A primeira publicação revelou que o workflow da Barbearia supunha o
+  sistema já instalado; aqui ele cria `bootstrap/cache` e `storage` e tolera o `artisan` ausente na primeira vez.
+
 ## O que falta
 
-- ⬜ Criar o repositório no GitHub, cadastrar os secrets e fazer a primeira instalação no servidor (roteiro abaixo).
+- ⬜ Criar o seu administrador no servidor (`admin:criar`, passo 6 abaixo) e testar a Barbearia pelo portal no navegador.
+- ⬜ Deixar o repositório `saas-admin` privado (está público).
 - ⬜ Clínica: quando o SaaS existir, incluir em `api/config/produtos.php`, criar `web/src/app/paginas/clinica/`,
   as rotas em `app.routes.ts` e a linha em `clientesPorProduto` (`paginas/inicio.ts`).
 - ⬜ Desativar o `/painel/admin` antigo da Barbearia (redirecionar para o portal) quando o portal estiver no ar.
