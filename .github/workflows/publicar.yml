@@ -152,7 +152,8 @@ jobs:
 
       - name: Modo manutenção
         # Na primeira publicação o código ainda não está no servidor (só o .env): não há o que pôr em manutenção.
-        run: ssh hostgator "cd $DIR_SISTEMA && if [ -f artisan ]; then $PHP_REMOTO artisan down --retry=30; else echo 'Primeira publicação: sem artisan ainda.'; fi"
+        run: |
+          ssh hostgator "cd $DIR_SISTEMA && if [ -f artisan ]; then $PHP_REMOTO artisan down --retry=30; else echo 'Primeira publicação, sem artisan ainda.'; fi"
 
       - name: Enviar o sistema (Laravel)
         # --delete remove do servidor o que saiu do código; o que está em --exclude nunca é tocado.
